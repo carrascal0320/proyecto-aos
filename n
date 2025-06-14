@@ -1,0 +1,27 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Permitir lectura/escritura de perfil de usuario, usando su UID
+    match /userProfiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Permitir acceso a la colección "usuarios" para usuarios autenticados
+    match /usuarios/{docId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Permitir escritura en colección "auditoria", sin permitir lectura
+    match /auditoria/{docId} {
+      allow create: if request.auth != null;
+      allow read, write: if request.auth != null;  // Opcionalmente puedes permitir lectura si lo necesitas
+    }
+        match /auditoria/{document} {
+      allow read: if true; // O tus condiciones de seguridad
+      allow write: if request.auth != null; // O tus condiciones de seguridad
+    }
+  }
+}
+
+
